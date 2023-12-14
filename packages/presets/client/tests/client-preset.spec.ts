@@ -1792,6 +1792,315 @@ export * from "./gql.js";`);
     `);
   });
 
+  describe('handles @inline directive', () => {
+    it('generates correct types', async () => {
+      const result = await executeCodegen({
+        schema: [
+          /* GraphQL */ `
+            type Query {
+              foo: Foo
+              foos: [Foo]
+            }
+
+            type Foo {
+              id: String
+              value: String
+            }
+          `,
+        ],
+        documents: path.join(__dirname, 'fixtures/with-inline-fragment.ts'),
+        generates: {
+          'out1/': {
+            preset,
+          },
+        },
+      });
+
+      const graphqlFile = result.find(file => file.filename === 'out1/graphql.ts');
+      expect(graphqlFile.content).toMatchInlineSnapshot(`
+        "/* eslint-disable */
+        import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
+        export type Maybe<T> = T | null;
+        export type InputMaybe<T> = Maybe<T>;
+        export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+        export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+        export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+        export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+        export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+        /** All built-in and custom scalars, mapped to their actual values */
+        export type Scalars = {
+          ID: { input: string; output: string; }
+          String: { input: string; output: string; }
+          Boolean: { input: boolean; output: boolean; }
+          Int: { input: number; output: number; }
+          Float: { input: number; output: number; }
+        };
+
+        export type Foo = {
+          __typename?: 'Foo';
+          id?: Maybe<Scalars['String']['output']>;
+          value?: Maybe<Scalars['String']['output']>;
+        };
+
+        export type Query = {
+          __typename?: 'Query';
+          foo?: Maybe<Foo>;
+          foos?: Maybe<Array<Maybe<Foo>>>;
+        };
+
+        export type FooQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+        export type FooQuery = { __typename?: 'Query', foo?: (
+            { __typename?: 'Foo', id?: string | null, value?: string | null }
+            & { ' $fragmentRefs'?: { 'FooFragment': FooFragment } }
+          ) | null };
+
+        export type NestedFooQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+        export type NestedFooQuery = { __typename?: 'Query', foo?: (
+            { __typename?: 'Foo' }
+            & { ' $fragmentRefs'?: { 'NestedFooFragment': NestedFooFragment } }
+          ) | null };
+
+        export type NestedInlineFooQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+        export type NestedInlineFooQuery = { __typename?: 'Query', foo?: (
+            { __typename?: 'Foo', id?: string | null, value?: string | null }
+            & { ' $fragmentRefs'?: { 'NestedInlineFooFragment': NestedInlineFooFragment;'FooBarFragment': FooBarFragment;'BarFragment': BarFragment } }
+          ) | null };
+
+        export type FooFragment = { __typename?: 'Foo', value?: string | null } & { ' $fragmentName'?: 'FooFragment' };
+
+        export type FooBarFragment = (
+          { __typename?: 'Foo', value?: string | null }
+          & { ' $fragmentRefs'?: { 'BarFragment': BarFragment } }
+        ) & { ' $fragmentName'?: 'FooBarFragment' };
+
+        export type BarFragment = { __typename?: 'Foo', id?: string | null } & { ' $fragmentName'?: 'BarFragment' };
+
+        export type NestedFooFragment = (
+          { __typename?: 'Foo', id?: string | null }
+          & { ' $fragmentRefs'?: { 'FooBarFragment': FooBarFragment } }
+        ) & { ' $fragmentName'?: 'NestedFooFragment' };
+
+        export const FooFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Foo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Foo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}}]}}]} as unknown as DocumentNode<FooFragment, unknown>;
+        export const BarFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Bar"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Foo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]} as unknown as DocumentNode<BarFragment, unknown>;
+        export const FooBarFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"FooBar"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Foo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"Bar"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Bar"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Foo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]} as unknown as DocumentNode<FooBarFragment, unknown>;
+        export const NestedFooFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"NestedFoo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Foo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"FooBar"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Bar"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Foo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"FooBar"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Foo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"Bar"}}]}}]} as unknown as DocumentNode<NestedFooFragment, unknown>;
+        export const FooDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Foo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"foo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"Foo"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Foo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Foo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}}]}}]} as unknown as DocumentNode<FooQuery, FooQueryVariables>;
+        export const NestedFooDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"NestedFoo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"foo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"NestedFoo"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Bar"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Foo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"FooBar"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Foo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"Bar"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"NestedFoo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Foo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"FooBar"}}]}}]} as unknown as DocumentNode<NestedFooQuery, NestedFooQueryVariables>;
+        export const NestedInlineFooDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"NestedInlineFoo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"foo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"NestedInlineFoo"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Bar"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Foo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"FooBar"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Foo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"Bar"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"NestedInlineFoo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Foo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"FooBar"}}]}}]} as unknown as DocumentNode<NestedInlineFooQuery, NestedInlineFooQueryVariables>;"
+      `);
+    });
+
+    it('works with documentMode: string', async () => {
+      const result = await executeCodegen({
+        schema: [
+          /* GraphQL */ `
+            type Query {
+              foo: Foo
+              foos: [Foo]
+            }
+
+            type Foo {
+              id: String
+              value: String
+            }
+          `,
+        ],
+        documents: path.join(__dirname, 'fixtures/with-inline-fragment.ts'),
+        generates: {
+          'out1/': {
+            preset,
+            config: {
+              documentMode: 'string',
+            },
+          },
+        },
+      });
+
+      const graphqlFile = result.find(file => file.filename === 'out1/graphql.ts');
+      expect(graphqlFile.content).toMatchInlineSnapshot(`
+      "/* eslint-disable */
+      import { DocumentTypeDecoration } from '@graphql-typed-document-node/core';
+      export type Maybe<T> = T | null;
+      export type InputMaybe<T> = Maybe<T>;
+      export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+      export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+      export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+      export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+      export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+      /** All built-in and custom scalars, mapped to their actual values */
+      export type Scalars = {
+        ID: { input: string; output: string; }
+        String: { input: string; output: string; }
+        Boolean: { input: boolean; output: boolean; }
+        Int: { input: number; output: number; }
+        Float: { input: number; output: number; }
+      };
+
+      export type Foo = {
+        __typename?: 'Foo';
+        id?: Maybe<Scalars['String']['output']>;
+        value?: Maybe<Scalars['String']['output']>;
+      };
+
+      export type Query = {
+        __typename?: 'Query';
+        foo?: Maybe<Foo>;
+        foos?: Maybe<Array<Maybe<Foo>>>;
+      };
+
+      export type FooQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+      export type FooQuery = { __typename?: 'Query', foo?: (
+          { __typename?: 'Foo', id?: string | null, value?: string | null }
+          & { ' $fragmentRefs'?: { 'FooFragment': FooFragment } }
+        ) | null };
+
+      export type NestedFooQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+      export type NestedFooQuery = { __typename?: 'Query', foo?: (
+          { __typename?: 'Foo', id?: string | null }
+          & { ' $fragmentRefs'?: { 'NestedFooFragment': NestedFooFragment;'FooBarFragment': FooBarFragment } }
+        ) | null };
+
+      export type NestedInlineFooQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+      export type NestedInlineFooQuery = { __typename?: 'Query', foo?: (
+          { __typename?: 'Foo', id?: string | null, value?: string | null }
+          & { ' $fragmentRefs'?: { 'NestedInlineFooFragment': NestedInlineFooFragment;'FooBarFragment': FooBarFragment;'BarFragment': BarFragment } }
+        ) | null };
+
+      export type FooFragment = { __typename?: 'Foo', value?: string | null } & { ' $fragmentName'?: 'FooFragment' };
+
+      export type FooBarFragment = (
+        { __typename?: 'Foo', value?: string | null }
+        & { ' $fragmentRefs'?: { 'BarFragment': BarFragment } }
+      ) & { ' $fragmentName'?: 'FooBarFragment' };
+
+      export type BarFragment = { __typename?: 'Foo', id?: string | null } & { ' $fragmentName'?: 'BarFragment' };
+
+      export type NestedFooFragment = (
+        { __typename?: 'Foo', id?: string | null }
+        & { ' $fragmentRefs'?: { 'FooBarFragment': FooBarFragment } }
+      ) & { ' $fragmentName'?: 'NestedFooFragment' };
+
+      export type NestedInlineFooFragment = (
+        { __typename?: 'Foo', id?: string | null, value?: string | null }
+        & { ' $fragmentRefs'?: { 'FooBarFragment': FooBarFragment;'BarFragment': BarFragment } }
+      ) & { ' $fragmentName'?: 'NestedInlineFooFragment' };
+
+      export class TypedDocumentString<TResult, TVariables>
+        extends String
+        implements DocumentTypeDecoration<TResult, TVariables>
+      {
+        __apiType?: DocumentTypeDecoration<TResult, TVariables>['__apiType'];
+
+        constructor(private value: string, public __meta__?: Record<string, any>) {
+          super(value);
+        }
+
+        toString(): string & DocumentTypeDecoration<TResult, TVariables> {
+          return this.value;
+        }
+      }
+      export const FooFragmentDoc = new TypedDocumentString(\`
+          fragment Foo on Foo {
+        value
+      }
+          \`, {"fragmentName":"Foo"}) as unknown as TypedDocumentString<FooFragment, unknown>;
+      export const BarFragmentDoc = new TypedDocumentString(\`
+          fragment Bar on Foo {
+        id
+      }
+          \`, {"fragmentName":"Bar"}) as unknown as TypedDocumentString<BarFragment, unknown>;
+      export const FooBarFragmentDoc = new TypedDocumentString(\`
+          fragment FooBar on Foo {
+        value
+        ...Bar
+      }
+          fragment Bar on Foo {
+        id
+      }\`, {"fragmentName":"FooBar"}) as unknown as TypedDocumentString<FooBarFragment, unknown>;
+      export const NestedFooFragmentDoc = new TypedDocumentString(\`
+          fragment NestedFoo on Foo {
+        id
+        ...FooBar
+      }
+          fragment FooBar on Foo {
+        value
+        ...Bar
+      }
+      fragment Bar on Foo {
+        id
+      }\`, {"fragmentName":"NestedFoo"}) as unknown as TypedDocumentString<NestedFooFragment, unknown>;
+      export const NestedInlineFooFragmentDoc = new TypedDocumentString(\`
+          fragment NestedInlineFoo on Foo {
+        id
+        ...FooBar
+      }
+          fragment FooBar on Foo {
+        value
+        ...Bar
+      }
+      fragment Bar on Foo {
+        id
+      }\`, {"fragmentName":"NestedInlineFoo"}) as unknown as TypedDocumentString<NestedInlineFooFragment, unknown>;
+      export const FooDocument = new TypedDocumentString(\`
+          query Foo {
+        foo {
+          ...Foo
+          id
+        }
+      }
+          fragment Foo on Foo {
+        value
+      }\`) as unknown as TypedDocumentString<FooQuery, FooQueryVariables>;
+      export const NestedFooDocument = new TypedDocumentString(\`
+          query NestedFoo {
+        foo {
+          ...NestedFoo
+        }
+      }
+          fragment FooBar on Foo {
+        value
+        ...Bar
+      }
+      fragment Bar on Foo {
+        id
+      }
+      fragment NestedFoo on Foo {
+        id
+        ...FooBar
+      }\`) as unknown as TypedDocumentString<NestedFooQuery, NestedFooQueryVariables>;
+      export const NestedInlineFooDocument = new TypedDocumentString(\`
+          query NestedInlineFoo {
+        foo {
+          ...NestedInlineFoo
+        }
+      }
+          fragment FooBar on Foo {
+        value
+        ...Bar
+      }
+      fragment Bar on Foo {
+        id
+      }
+      fragment NestedInlineFoo on Foo {
+        id
+        ...FooBar
+      }\`) as unknown as TypedDocumentString<NestedInlineFooQuery, NestedInlineFooQueryVariables>;"
+    `);
+    });
+  });
+
   describe('handles @defer directive', () => {
     it('generates correct types and metadata', async () => {
       const result = await executeCodegen({
